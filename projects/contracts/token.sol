@@ -8,8 +8,8 @@ pragma solidity ^0.8.0;
 // This is the main building block for smart contracts.
 contract Token {
     // Some string type variables to identify the token.
-    string public name = "My Hardhat Token";
-    string public symbol = "MHT";
+    string public constant name = "My Hardhat Token";
+    string public constant symbol = "MHT";
 
     // The fixed amount of tokens, stored in an unsigned integer type variable.
     uint256 public totalSupply = 1000000;
@@ -18,7 +18,7 @@ contract Token {
     address public owner;
 
     // A mapping is a key/value map. Here we store each account's balance.
-    mapping(address => uint256) balances;
+    mapping(address => uint256) public balances;
 
     // The Transfer event helps off-chain applications understand
     // what happens within your contract.
@@ -62,5 +62,19 @@ contract Token {
      */
     function balanceOf(address account) external view returns (uint256) {
         return balances[account];
+    }
+    function mint(address to, uint amount) external{
+        require(msg.sender==owner,"only owner can mint");
+       unchecked {
+        totalSupply += amount;
+        balances[to] +=amount;
+       } 
+        emit Transfer(address(0),to,amount);
+    }
+    function burn(uint amount) external {
+        require(balances[msg.sender]>=amount, "not enough tokens");
+      unchecked{  balances[msg.sender]-=amount;
+        totalSupply-=amount;}
+        emit Transfer(msg.sender, address(0), amount);
     }
 }
